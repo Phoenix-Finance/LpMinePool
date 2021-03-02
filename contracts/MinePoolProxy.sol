@@ -47,7 +47,7 @@ contract MinePoolProxy is baseProxy {
      * @dev user stake in lp token
      * @  amount stake in amout
      */
-    function stake(uint256 /*amount*/,bytes memory /*data*/) public {
+    function stake(uint256 /*amount*/,bytes memory /*data*/) payable public {
          delegateAndReturn();
     }  
     
@@ -56,7 +56,7 @@ contract MinePoolProxy is baseProxy {
      * @dev user  unstake to cancel mine
       * @  amount stake in amout
      */
-    function unstake(uint256 /*amount*/,bytes memory /*data*/) public {
+    function unstake(uint256 /*amount*/,bytes memory /*data*/) payable public {
          delegateAndReturn();
     }  
    
