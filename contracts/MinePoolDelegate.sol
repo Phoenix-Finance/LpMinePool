@@ -7,7 +7,7 @@ import "./LPTokenWrapper.sol";
 import "./Halt.sol";
 
 
-contract MinePoolDelegate is LPTokenWrapper {
+contract MinePool is LPTokenWrapper {
 
     event Staked(address indexed user, uint256 amount);
     event Withdrawn(address indexed user, uint256 amount);
@@ -15,11 +15,13 @@ contract MinePoolDelegate is LPTokenWrapper {
     event HisReward(address indexed user, uint256 indexed reward,uint256 indexed idx);
 
     modifier updateReward(address account) {
-        require(now >= startTime,"not reach start time");
-        
+
         rewardPerTokenStored = rewardPerToken();
         lastUpdateTime = lastTimeRewardApplicable();
+
         if (account != address(0)) {
+            require(now >= startTime,"not reach start time");
+
             rewards[account] = earned(account);
             userRewardPerTokenPaid[account] = rewardPerTokenStored;     
         }
@@ -30,8 +32,8 @@ contract MinePoolDelegate is LPTokenWrapper {
         //for the future use
     }
 
-    function setPoolMineAddress(address _liquidpool,address _fnxaddress) public onlyOwner{
-        require(_liquidpool != address(0));
+    function setPoolMineAddress(address payable _liquidpool,address _fnxaddress) public onlyOwner{
+       // require(_liquidpool != address(0));
         require(_fnxaddress != address(0));
         
         lp  = _liquidpool;
@@ -39,12 +41,12 @@ contract MinePoolDelegate is LPTokenWrapper {
     }
     
     function setMineRate(uint256 _reward,uint256 _duration) public onlyOwner updateReward(address(0)){
-        require(_reward>0);
+        //require(_reward>0);
         require(_duration>0);
 
         //token number per seconds
         rewardRate = _reward.div(_duration);
-        require(rewardRate > 0);
+       // require(rewardRate > 0);
 
         rewardPerduration = _reward;
         duration = _duration;
@@ -52,7 +54,7 @@ contract MinePoolDelegate is LPTokenWrapper {
     
     function setPeriodFinish(uint256 startime,uint256 endtime)public onlyOwner updateReward(address(0)) {
         //the setting time must pass timebeing
-        require(startime >=now);
+        //require(startime >=now);
         require(endtime > startTime);
         
         //set new finish time
@@ -65,9 +67,12 @@ contract MinePoolDelegate is LPTokenWrapper {
      * @dev getting back the left mine token
      * @param reciever the reciever for getting back mine token
      */
-    function getbackLeftMiningToken(address reciever)  public onlyOwner {
+    function getbackLeftMiningToken(address payable reciever)  public onlyOwner {
         uint256 bal =  IERC20(fnx).balanceOf(address(this));
         IERC20(fnx).transfer(reciever,bal);
+        if(lp==address(0)){
+            reciever.transfer(address(this).balance);
+        }
     }  
         
 //////////////////////////public function/////////////////////////////////    
@@ -96,7 +101,7 @@ contract MinePoolDelegate is LPTokenWrapper {
         return earned(account);
      }
 
-    function stake(uint256 amount,bytes memory data) public updateReward(msg.sender) notHalted nonReentrant {
+    function stake(uint256 amount,bytes memory data) public updateReward(msg.sender) payable notHalted nonReentrant {
         require(amount > 0, "Cannot stake 0");
         require(now < periodFinish,"over finish time");//do not allow to stake after finish
         
@@ -104,10 +109,8 @@ contract MinePoolDelegate is LPTokenWrapper {
         emit Staked(msg.sender, amount);
     }
 
-    function unstake(uint256 amount,bytes memory data) public updateReward(msg.sender) notHalted nonReentrant {
+    function unstake(uint256 amount,bytes memory data) public updateReward(msg.sender) payable notHalted nonReentrant {
         require(amount > 0, "Cannot withdraw 0");
-
-        
         super.unstake(amount);
         emit Withdrawn(msg.sender, amount);
     }

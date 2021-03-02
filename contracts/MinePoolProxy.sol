@@ -13,6 +13,7 @@ contract MinePoolProxy is baseProxy {
      * @dev default function for foundation input miner coins.
      */
     function()external payable{
+
     }
    
         

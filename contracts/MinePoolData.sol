@@ -7,7 +7,7 @@ import "./Halt.sol";
 contract MinePoolData is Ownable,Halt,ReentrancyGuard {
     
     address public fnx ;
-    address public lp;
+    address payable public lp;
 
    // address  public rewardDistribution;
     
