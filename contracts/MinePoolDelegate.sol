@@ -73,8 +73,41 @@ contract MinePool is LPTokenWrapper {
         if(lp==address(0)){
             reciever.transfer(address(this).balance);
         }
-    }  
-        
+    }
+
+    function setFeePara(uint256 fnxFeeRatio,uint256 htFeeAmount,address payable feeReciever) onlyOwner public {
+        if(fnxFeeRatio>0) {
+            _fnxFeeRatio = fnxFeeRatio;
+        }
+        if(htFeeAmount >0 ) {
+            _htFeeAmount = htFeeAmount;
+        }
+        if(feeReciever != address(0)){
+            _feeReciever = feeReciever;
+        }
+    }
+
+    function  collectFee(address mineCoin,uint256 amount) internal returns (uint256){
+        require(msg.value>=_htFeeAmount,"need input ht coin value 0.01");
+
+        //charged ht fee
+        _feeReciever.transfer(_htFeeAmount);
+
+        if (mineCoin != address(0)){
+            //charge fnx token fee
+            uint256 fee = amount.mul(_fnxFeeRatio).div(1000);
+            IERC20 token = IERC20(mineCoin);
+            uint256 preBalance = token.balanceOf(address(this));
+            //ERC20(this).safeTransfer(token,_feeReciever,fee);
+            token.transfer(_feeReciever, fee);
+            uint256 afterBalance = token.balanceOf(address(this));
+            require(preBalance - afterBalance == fee,"settlement token transfer error!");
+
+            return amount.sub(fee);
+        }
+
+        return amount;
+    }
 //////////////////////////public function/////////////////////////////////    
 
     function lastTimeRewardApplicable() public view returns(uint256) {
@@ -116,13 +149,16 @@ contract MinePool is LPTokenWrapper {
     }
 
     function exit() public notHalted nonReentrant {
-        super.unstake(balanceOf(msg.sender));
+        unstake(balanceOf(msg.sender));
         getReward();
     }
 
     function getReward() public updateReward(msg.sender) notHalted nonReentrant {
         uint256 reward = earned(msg.sender);
         if (reward > 0) {
+            //get fee for reciever
+            reward = collectFee(fnx,reward);
+
             rewards[msg.sender] = 0;
             IERC20(fnx).transfer(msg.sender, reward);
             emit RewardPaid(msg.sender, reward);
@@ -160,5 +196,6 @@ contract MinePool is LPTokenWrapper {
     function getVersion() public view returns (uint256) {
         return 1;
     }    
+
 
 }

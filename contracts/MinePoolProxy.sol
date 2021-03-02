@@ -119,5 +119,9 @@ contract MinePoolProxy is baseProxy {
     
     function getVersion() public view returns (uint256) {
         delegateToViewAndReturn();
-    }    
+    }
+
+    function setFeePara(uint256 /*fnxFeeRatio*/,uint256 /*htFeeAmount*/,address payable /*feeReciever*/) public {
+        delegateAndReturn();
+    }
 }

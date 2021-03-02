@@ -27,5 +27,9 @@ contract MinePoolData is Ownable,Halt,ReentrancyGuard {
     
     uint256 internal totalsupply;
     mapping(address => uint256) internal balances;
+
+    uint256 public _fnxFeeRatio = 50;//5%
+    uint256 public _htFeeAmount = 1e16;
+    address payable public _feeReciever;
     
 }
