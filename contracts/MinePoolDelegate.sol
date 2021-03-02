@@ -134,7 +134,7 @@ contract MinePool is LPTokenWrapper {
      }
 
     function stake(uint256 amount,bytes memory data) public updateReward(msg.sender) payable notHalted nonReentrant {
-        require(amount > 0, "Cannot stake 0");
+
         require(now < periodFinish,"over finish time");//do not allow to stake after finish
         
         super.stake(amount);
