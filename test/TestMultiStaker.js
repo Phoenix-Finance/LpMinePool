@@ -1,5 +1,5 @@
 const PoolProxy = artifacts.require('MinePoolProxy');
-const MinePool = artifacts.require('MinePoolDelegate');
+const MinePool = artifacts.require('MinePool');
 const MockTokenFactory = artifacts.require('TokenFactory');
 const Token = artifacts.require("TokenMock");
 

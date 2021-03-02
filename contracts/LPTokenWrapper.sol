@@ -38,6 +38,5 @@ contract LPTokenWrapper is MinePoolData {
         }
     }
 
-
     
 }

@@ -1,5 +1,5 @@
 const PoolProxy = artifacts.require('MinePoolProxy');
-const MinePool = artifacts.require('MinePoolDelegate');
+const MinePool = artifacts.require('MinePool');
 const MockTokenFactory = artifacts.require('TokenFactory');
 const Token = artifacts.require("TokenMock");
 
@@ -8,6 +8,7 @@ const Web3 = require('web3');
 const config = require("../truffle.js");
 const BN = require("bn.js");
 var utils = require('./utils.js');
+const { time, expectEvent} = require("@openzeppelin/test-helpers")
 
 web3 = new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:7545"));
 

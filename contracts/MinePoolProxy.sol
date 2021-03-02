@@ -71,7 +71,7 @@ contract MinePoolProxy is baseProxy {
     /**
      * @dev user redeem mine rewards.
      */
-    function getReward() public {
+    function getReward() payable public {
         delegateAndReturn();
     }    
     

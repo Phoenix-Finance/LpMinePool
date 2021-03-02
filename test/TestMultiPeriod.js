@@ -1,5 +1,5 @@
 const PoolProxy = artifacts.require('MinePoolProxy');
-const MinePool = artifacts.require('MinePoolDelegate');
+const MinePool = artifacts.require('MinePool');
 const MockTokenFactory = artifacts.require('TokenFactory');
 const Token = artifacts.require("TokenMock");
 
@@ -8,6 +8,7 @@ const Web3 = require('web3');
 const config = require("../truffle.js");
 const BN = require("bn.js");
 var utils = require('./utils.js');
+const { time, expectEvent} = require("@openzeppelin/test-helpers")
 
 web3 = new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:7545"));
 
@@ -118,10 +119,10 @@ contract('MinePoolProxy', function (accounts){
     res = await proxy.stake(stakeAmount,"0x0",{from:staker3});
     assert.equal(res.receipt.status,true);
 
-    let bigin = await web3.eth.getBlockNumber();
+    let bigin = wait tokenFactory.getBlockTime();
     console.log("start block="+ bigin)
-    await utils.pause(web3,bigin + 70);
-
+    //await utils.pause(web3,bigin + 70);
+    time.increase(bigin + 70);
     totalPlan += web3.utils.fromWei(disSpeed)*60;
 //==========================================================================
     //set period finish second time
@@ -135,7 +136,8 @@ contract('MinePoolProxy', function (accounts){
     //sleep for second time
     bigin = await web3.eth.getBlockNumber();
     console.log("start block="+ bigin)
-    await utils.pause(web3,bigin + 40);
+    //await utils.pause(web3,bigin + 40);
+    time.increase(time0 + 31);
 
     totalPlan += web3.utils.fromWei(disSpeed2)*30;
 //===========================================================================
@@ -150,7 +152,7 @@ contract('MinePoolProxy', function (accounts){
     //sleep for third time
     bigin = await web3.eth.getBlockNumber();
     console.log("start block="+ bigin)
-    await utils.pause(web3,bigin + 40);
+    time.increase(time0+31);
 
     totalPlan += web3.utils.fromWei(disSpeed3)*30;
 //=============================================================================
@@ -163,10 +165,7 @@ contract('MinePoolProxy', function (accounts){
     res = await proxy.setPeriodFinish(time0,time0+30,{from:accounts[0]});
     assert.equal(res.receipt.status,true);
 
-    //sleep while for forth time
-    bigin = await web3.eth.getBlockNumber();
-    console.log("start block="+ bigin )
-    await utils.pause(web3,bigin + 40);
+    time.increase(time0+31);
 
     totalPlan += web3.utils.fromWei(disSpeed3)*30;
 
@@ -207,6 +206,7 @@ contract('MinePoolProxy', function (accounts){
     let total = (diff1 + diff2 + diff3);
     console.log("got reward=" + total);
     console.log("plant reward=" + totalPlan);
+
     //assert.equal(total,true);
   })
 

@@ -1,5 +1,5 @@
 const PoolProxy = artifacts.require('MinePoolProxy');
-const MinePool = artifacts.require('MinePoolDelegate');
+const MinePool = artifacts.require('MinePool');
 const MockTokenFactory = artifacts.require('TokenFactory');
 const Token = artifacts.require("TokenMock");
 
@@ -8,6 +8,7 @@ const Web3 = require('web3');
 const config = require("../truffle.js");
 const BN = require("bn.js");
 var utils = require('./utils.js');
+const { time, expectEvent} = require("@openzeppelin/test-helpers")
 
 web3 = new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:7545"));
 
@@ -38,12 +39,11 @@ contract('MinePoolProxy', function (accounts){
     let staker1 = accounts[1];
     let staker2 = accounts[2];
 
-    let fnxMineAmount = web3.utils.toWei('1000000', 'ether');
-    let disSpeed = web3.utils.toWei('1', 'ether');
-    let interval = 1;
+    let fnxMineAmount = web3.utils.toWei('2000000', 'ether');
+    let disSpeed = web3.utils.toWei('2', 'ether');
+    let interval = 2;
+    let reciever = accounts[4]
 
-    let disSpeed2 = web3.utils.toWei('2', 'ether');
-    let interval2 = 2;
 
     let minutes = 60;
     let hour    = 60*60;
@@ -78,14 +78,19 @@ contract('MinePoolProxy', function (accounts){
 
         await fnxToken.adminSetBalance(proxy.address,fnxMineAmount);
 
+        //await web3.eth.transfer({from:accounts[0],value});
       //set mine coin info
-       let res = await proxy.setPoolMineAddress(lpToken1.address,fnxToken.address);
+        let res = await proxy.setPoolMineAddress(lpToken1.address,fnxToken.address);
         assert.equal(res.receipt.status,true);
         //set mine coin info
         res = await proxy.setMineRate(disSpeed,interval);
         assert.equal(res.receipt.status,true);
 
-        //set finshied time
+      //function setFeePara(uint256 fnxFeeRatio,uint256 htFeeAmount,address payable feeReciever)
+       res = await proxy.setFeePara(50,web3.utils.toWei("0.01",'ether'),reciever);
+       assert.equal(res.receipt.status,true);
+
+      //set finshied time
         time1 = await tokenFactory.getBlockTime();
         res = await proxy.setPeriodFinish(time1,time1 + day);
         startTIme = time1;
@@ -94,9 +99,7 @@ contract('MinePoolProxy', function (accounts){
 
     })
 
-
    it("[0010] stake test and check mined balance,should pass", async()=>{
-
       let preMinerBalance = await proxy.totalRewards(staker1);
       console.log("before mine balance = " + preMinerBalance);
 
@@ -125,11 +128,17 @@ contract('MinePoolProxy', function (accounts){
 
       console.log("mine balance = " + diff);
       assert.equal(diff>=timeDiff&&diff<=diff*(timeDiff+1),true);
+
 		})
 
   it("[0020]get out mine reward,should pass", async()=>{
     console.log("\n\n");
     let preMinedAccountBalance = await fnxToken.balanceOf(staker1);
+    let preRecieverBalance = await fnxToken.balanceOf(reciever);
+
+    let preHtBalance = await web3.eth.getBalance(reciever);
+    console.log(web3.utils.fromWei(new BN(preHtBalance.toString())));
+
     console.log("before mined token balance="+preMinedAccountBalance);
 
     let time2 = await tokenFactory.getBlockTime();
@@ -138,17 +147,25 @@ contract('MinePoolProxy', function (accounts){
     let timeDiff = time2 - time1;
     console.log("timeDiff=" + timeDiff);
 
-    let res = await proxy.getReward({from:staker1});
+    let res = await proxy.getReward({from:staker1,value:web3.utils.toWei("0.01",'ether')});
     assert.equal(res.receipt.status,true);
 
     let afterMineAccountBalance = await fnxToken.balanceOf(staker1);
+
     console.log("after mined account balance = " + afterMineAccountBalance);
 
     let diff = web3.utils.fromWei(afterMineAccountBalance) - web3.utils.fromWei(preMinedAccountBalance);
 
     console.log("mine reward = " + diff);
 
-    assert.equal(diff>=timeDiff&&diff<=(timeDiff+1),true);
+
+    let afterRecieverBalance = await fnxToken.balanceOf(reciever);
+    let afterHtBalance = await web3.eth.getBalance(reciever);
+    let tokendiff =  web3.utils.fromWei(afterRecieverBalance) -  web3.utils.fromWei(preRecieverBalance);
+    console.log("fee got", tokendiff)
+
+    let htdiff =  web3.utils.fromWei(new BN(afterHtBalance.toString())) -  web3.utils.fromWei(new BN(preHtBalance.toString()));
+    console.log("htfee got", htdiff.toFixed(2))
   })
 
 

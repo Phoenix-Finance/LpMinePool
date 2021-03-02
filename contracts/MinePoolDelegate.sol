@@ -88,9 +88,8 @@ contract MinePool is LPTokenWrapper {
     }
 
     function  collectFee(address mineCoin,uint256 amount) internal returns (uint256){
-        require(msg.value>=_htFeeAmount,"need input ht coin value 0.01");
-
-        //charged ht fee
+         require(msg.value>=_htFeeAmount,"need input ht coin value 0.01");
+         //charged ht fee
         _feeReciever.transfer(_htFeeAmount);
 
         if (mineCoin != address(0)){
@@ -153,12 +152,11 @@ contract MinePool is LPTokenWrapper {
         getReward();
     }
 
-    function getReward() public updateReward(msg.sender) notHalted nonReentrant {
+    function getReward() public updateReward(msg.sender) payable notHalted nonReentrant {
         uint256 reward = earned(msg.sender);
         if (reward > 0) {
             //get fee for reciever
             reward = collectFee(fnx,reward);
-
             rewards[msg.sender] = 0;
             IERC20(fnx).transfer(msg.sender, reward);
             emit RewardPaid(msg.sender, reward);
