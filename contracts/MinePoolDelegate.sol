@@ -208,7 +208,7 @@ contract MinePool is LPTokenWrapper {
         return (totalStakedFor(_user),totalRewards(_user),0);
     }
 
-    function totalStaked() public view returns (uint256) {
+    function totalStaked(uint256 _pid) public view returns (uint256){
         return super.totalSupply();
     }
 

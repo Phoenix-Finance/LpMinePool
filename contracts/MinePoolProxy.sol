@@ -105,7 +105,7 @@ contract MinePoolProxy is baseProxy {
      * @dev all stake token.
      * @return The number of staking tokens
      */
-    function totalStaked() public view returns (uint256) {
+    function totalStaked(uint256 ) public view returns (uint256) {
          delegateToViewAndReturn();
     }
 
