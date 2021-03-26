@@ -193,12 +193,12 @@ contract MinePool is LPTokenWrapper {
         return 1;
     }
 ///////////////////////////////////////////////////////////////////////////////////////
-    function deposit(uint256 _pid, uint256 _amount) public {
+    function deposit(uint256 _pid, uint256 _amount)  public payable {
         bytes memory data = new bytes(1);
         stake(_amount,data);
     }
 
-    function withdraw(uint256 _pid, uint256 _amount) public{
+    function withdraw(uint256 _pid, uint256 _amount) public payable{
         if(_amount==0) {
             getReward();
         }else {
