@@ -15,9 +15,8 @@ contract MinePoolProxy is baseProxy {
     function()external payable{
 
     }
-   
         
-    function setPoolMineAddress(address _liquidpool,address _fnxaddress) public {
+    function setPoolMineAddress(address /*_liquidpool*/,address /*_fnxaddress*/) public {
          delegateAndReturn();
     }    
     /**
@@ -85,10 +84,10 @@ contract MinePoolProxy is baseProxy {
     }
   
     /**
-     * @param addr The user to look up staking information for.
-     * @return The number of staking tokens deposited for addr.
+     * The user to look up staking information for.
+     * return The number of staking tokens deposited for addr.
      */
-    function totalStakedFor(address addr) public view returns (uint256){
+    function totalStakedFor(address /*addr*/) public view returns (uint256){
         delegateToViewAndReturn();
     }  
     
@@ -97,7 +96,7 @@ contract MinePoolProxy is baseProxy {
      * @dev retrieve user's stake balance.
      *  account user's account
      */
-    function totalRewards(address account) public view returns (uint256) {
+    function totalRewards(address /*account*/) public view returns (uint256) {
         delegateToViewAndReturn();
     }
 
@@ -124,4 +123,17 @@ contract MinePoolProxy is baseProxy {
     function setFeePara(uint256 /*fnxFeeRatio*/,uint256 /*htFeeAmount*/,address payable /*feeReciever*/) public {
         delegateAndReturn();
     }
+//////////////////////////////////////////////////////////////////////////////////
+    function deposit(uint256 /*_pid*/, uint256 /*_amount*/) public  notHalted nonReentrant{
+        delegateAndReturn();
+    }
+
+    function withdraw(uint256 /*_pid*/, uint256 /*_amount*/) public notHalted nonReentrant{
+        delegateAndReturn();
+    }
+
+    function allPendingReward(uint256 /*_pid*/,address /*_user*/) public view returns(uint256,uint256,uint256){
+        delegateToViewAndReturn();
+    }
+
 }

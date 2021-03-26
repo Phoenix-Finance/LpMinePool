@@ -182,10 +182,6 @@ contract MinePool is LPTokenWrapper {
      * @dev all stake token.
      * @return The number of staking tokens
      */
-    function totalStaked() public view returns (uint256) {
-        return super.totalSupply();
-    }
-    
 
     function getMineInfo() public view returns (uint256,uint256,uint256,uint256) {
         return (rewardPerduration,duration,startTime,periodFinish);
@@ -193,7 +189,28 @@ contract MinePool is LPTokenWrapper {
     
     function getVersion() public view returns (uint256) {
         return 1;
-    }    
+    }
+///////////////////////////////////////////////////////////////////////////////////////
+    function deposit(uint256 _pid, uint256 _amount) public  notHalted nonReentrant{
+        stake(_amount);
+    }
+
+    function withdraw(uint256 _pid, uint256 _amount) public notHalted nonReentrant{
+        if(_amount==0) {
+            getReward();
+        }else {
+            bytes memory data = new bytes(1);
+            unstake(_amount,data);
+        }
+    }
+
+    function allPendingReward(uint256 _pid,address _user) public view returns(uint256,uint256,uint256){
+        return (totalStakedFor(_user),totalRewards(_user),0);
+    }
+
+    function totalStaked() public view returns (uint256) {
+        return super.totalSupply();
+    }
 
 
 }

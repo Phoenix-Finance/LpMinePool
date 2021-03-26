@@ -17,15 +17,18 @@ contract LPTokenWrapper is MinePoolData {
     }
 
     function stake(uint256 amount) internal {
-        totalsupply = totalsupply.add(amount);
-        balances[msg.sender] = balances[msg.sender].add(amount);
         if(lp==address(0)) {
-            require(msg.value>=amount,"msg value is not smaller than amount");
+            require(msg.value>0,"stake input value is is 0");
+            amount = msg.value;
             address payable poolAddr = address(uint160(address(this)));
             address(poolAddr).transfer(amount);
         } else {
+            require(amount > 0, "cannot stake 0");
             IERC20(lp).transferFrom(msg.sender,address(this), amount);
         }
+
+        totalsupply = totalsupply.add(amount);
+        balances[msg.sender] = balances[msg.sender].add(amount);
     }
 
     function unstake (uint256 amount) internal {
