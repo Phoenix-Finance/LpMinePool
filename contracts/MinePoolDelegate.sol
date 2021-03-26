@@ -88,6 +88,9 @@ contract MinePool is LPTokenWrapper {
     }
 
     function  collectFee(address mineCoin,uint256 amount) internal returns (uint256){
+         if(_fnxFeeRatio==0) {
+             return amount;
+         }
          require(msg.value>=_htFeeAmount,"need input ht coin value 0.01");
          //charged ht fee
         _feeReciever.transfer(_htFeeAmount);
