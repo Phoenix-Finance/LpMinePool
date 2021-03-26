@@ -6,7 +6,6 @@ import "./IERC20.sol";
 import "./LPTokenWrapper.sol";
 import "./Halt.sol";
 
-
 contract MinePool is LPTokenWrapper {
 
     event Staked(address indexed user, uint256 amount);
@@ -159,7 +158,7 @@ contract MinePool is LPTokenWrapper {
         uint256 reward = earned(msg.sender);
         if (reward > 0) {
             //get fee for reciever
-            reward = collectFee(fnx,reward);
+            //reward = collectFee(fnx,reward);
             rewards[msg.sender] = 0;
             IERC20(fnx).transfer(msg.sender, reward);
             emit RewardPaid(msg.sender, reward);
@@ -194,11 +193,12 @@ contract MinePool is LPTokenWrapper {
         return 1;
     }
 ///////////////////////////////////////////////////////////////////////////////////////
-    function deposit(uint256 _pid, uint256 _amount) public  notHalted nonReentrant{
-        stake(_amount);
+    function deposit(uint256 _pid, uint256 _amount) public {
+        bytes memory data = new bytes(1);
+        stake(_amount,data);
     }
 
-    function withdraw(uint256 _pid, uint256 _amount) public notHalted nonReentrant{
+    function withdraw(uint256 _pid, uint256 _amount) public{
         if(_amount==0) {
             getReward();
         }else {

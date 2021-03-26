@@ -124,11 +124,11 @@ contract MinePoolProxy is baseProxy {
         delegateAndReturn();
     }
 //////////////////////////////////////////////////////////////////////////////////
-    function deposit(uint256 /*_pid*/, uint256 /*_amount*/) public  notHalted nonReentrant{
+    function deposit(uint256 /*_pid*/, uint256 /*_amount*/) public {
         delegateAndReturn();
     }
 
-    function withdraw(uint256 /*_pid*/, uint256 /*_amount*/) public notHalted nonReentrant{
+    function withdraw(uint256 /*_pid*/, uint256 /*_amount*/) public {
         delegateAndReturn();
     }
 
