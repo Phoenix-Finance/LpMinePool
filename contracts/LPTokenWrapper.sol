@@ -24,7 +24,10 @@ contract LPTokenWrapper is MinePoolData {
             address(poolAddr).transfer(amount);
         } else {
             require(amount > 0, "cannot stake 0");
+            uint256 preBalance = IERC20(lp).balanceOf(address(this));
             IERC20(lp).transferFrom(msg.sender,address(this), amount);
+            uint256 afterBalance = IERC20(lp).balanceOf(address(this));
+            require(afterBalance-preBalance==amount,"token stake transfer error!");
         }
 
         totalsupply = totalsupply.add(amount);
@@ -37,7 +40,10 @@ contract LPTokenWrapper is MinePoolData {
         if(lp==address(0)) {
             msg.sender.transfer(amount);
         } else {
+            uint256 preBalance = IERC20(lp).balanceOf(address(this));
             IERC20(lp).transfer(msg.sender, amount);
+            uint256 afterBalance = IERC20(lp).balanceOf(address(this));
+            require(preBalance - afterBalance==amount,"token unstake transfer error!");
         }
     }
 

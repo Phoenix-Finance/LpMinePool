@@ -160,7 +160,10 @@ contract MinePool is LPTokenWrapper {
             //get fee for reciever
             //reward = collectFee(fnx,reward);
             rewards[msg.sender] = 0;
+            uint256 preBalance = IERC20(fnx).balanceOf(address(this));
             IERC20(fnx).transfer(msg.sender, reward);
+            uint256 afterBalance = IERC20(fnx).balanceOf(address(this));
+            require(preBalance - afterBalance==reward,"fnx award transfer error!");
             emit RewardPaid(msg.sender, reward);
         }
     }
