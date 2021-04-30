@@ -53,7 +53,7 @@ contract MinePool is LPTokenWrapper {
     
     function setPeriodFinish(uint256 startime,uint256 endtime)public onlyOwner updateReward(address(0)) {
         //the setting time must pass timebeing
-        //require(startime >=now);
+        require(startime >=now);
         require(endtime > startTime);
         
         //set new finish time
