@@ -2,6 +2,7 @@ const PoolProxy = artifacts.require('MinePoolProxy');
 const MinePool = artifacts.require('MinePool');
 const MockTokenFactory = artifacts.require('TokenFactory');
 const Token = artifacts.require("TokenMock");
+let multiSignature = artifacts.require("multiSignature");
 
 const assert = require('chai').assert;
 const Web3 = require('web3');
@@ -12,14 +13,20 @@ const { time, expectEvent} = require("@openzeppelin/test-helpers")
 
 web3 = new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:7545"));
 
-// async function setupNetwork() {
-//   let network = args.network;
-//   web3url = "http://" + config.networks[network].host + ":" + config.networks[network].port;
-//   console.log("setup network %s", network);
-//   if (network == 'development' || network == 'soliditycoverage') {
-//     web3 = new Web3(new Web3.providers.HttpProvider(web3url));
-//   }
-// }
+async function createApplication(multiSign,account,to,value,message){
+  await multiSign.createApplication(to,value,message,{from:account});
+  return await multiSign.getApplicationHash(account,to,value,message)
+}
+
+async function testViolation(message,testFunc){
+  try {
+    await testFunc();
+    return true;
+  } catch (error) {
+    //console.log(error);
+    return false;
+  }
+}
 
 /**************************************************
  test case only for the ganahce command
@@ -46,16 +53,22 @@ contract('MinePoolProxy', function (accounts){
 
 
     let minutes = 60;
+    let fiveMinutes = 5*60;
     let hour    = 60*60;
     let day     = 24*hour;
     let finishTime;
     let startTIme;
     before("init", async()=>{
-        minepool = await MinePool.new();
+        let addresses = [accounts[7],accounts[8],accounts[9]]
+        mulSigInst = await multiSignature.new(addresses,2,{from : accounts[0]})
+
+        minepool = await MinePool.new(mulSigInst.address);
         console.log("pool address:", minepool.address);
 
-        proxy = await PoolProxy.new(minepool.address);
+        proxy = await PoolProxy.new(minepool.address,mulSigInst.address);
         console.log("proxy address:",proxy.address);
+
+        await proxy.setOperator(0,accounts[9]);
 
         tokenFactory = await MockTokenFactory.new();
         console.log("tokenfactory address:",tokenFactory.address);
@@ -92,7 +105,9 @@ contract('MinePoolProxy', function (accounts){
 
       //set finshied time
         time1 = await tokenFactory.getBlockTime();
-        res = await proxy.setPeriodFinish(time1,time1 + day);
+        console.log(time1);
+
+        res = await proxy.setPeriodFinish(new BN(time1).add(new BN(fiveMinutes)),time1 + day);
         startTIme = time1;
         finishTime = time1 + day;
         assert.equal(res.receipt.status,true);
@@ -106,8 +121,11 @@ contract('MinePoolProxy', function (accounts){
       let res = await lpToken1.approve(proxy.address,stakeAmount,{from:staker1});
 
      //res = await proxy.stake(stakeAmount,0,{from:staker1});
-      res = await proxy.deposit(0,stakeAmount,{from:staker1});
+      time.increase(time.duration.seconds(fiveMinutes*2));
+      console.log(await tokenFactory.getBlockTime())
 
+      res = await proxy.deposit(0,stakeAmount,{from:staker1});
+      assert.equal(res.receipt.status,true);
 
       //check totalStaked function
       let totalStaked = await proxy.totalStaked(0);
@@ -184,7 +202,24 @@ contract('MinePoolProxy', function (accounts){
   })
 
 
-    it("[0050] get back left mining token,should pass", async()=>{
+  it("[0050] get back left mining token,should pass", async()=>{
+
+    let msgData = proxy.contract.methods.getbackLeftMiningToken(staker1).encodeABI();
+    let hash = await createApplication(mulSigInst,accounts[9],proxy.address,0,msgData);
+
+    let res = await testViolation("multiSig setUserPhxUnlockInfo: This tx is not aprroved",async function(){
+       await proxy.getbackLeftMiningToken(staker1,{from:accounts[9]});
+    });
+    assert.equal(res,false,"should return false")
+
+    let index = await mulSigInst.getApplicationCount(hash)
+    index = index.toNumber()-1;
+    console.log(index);
+
+    await mulSigInst.signApplication(hash,index,{from:accounts[7]})
+    await mulSigInst.signApplication(hash,index,{from:accounts[8]})
+
+
       console.log("\n\n");
       let preMineBlance = await fnxToken.balanceOf(proxy.address);
       console.log("preMineBlance=" + preMineBlance);
@@ -192,8 +227,12 @@ contract('MinePoolProxy', function (accounts){
       let preRecieverBalance = await fnxToken.balanceOf(staker1);
       console.log("before mine balance = " + preRecieverBalance);
 
-      let res = await proxy.getbackLeftMiningToken(staker1);
-      assert.equal(res.receipt.status,true);
+      // res = await proxy.getbackLeftMiningToken(staker1,{from:accounts[9]});
+      // assert.equal(res.receipt.status,true);
+    res = await testViolation("multiSig setUserPhxUnlockInfo: This tx is aprroved",async function(){
+      await proxy.getbackLeftMiningToken(staker1,{from:accounts[9]});
+    });
+    assert.equal(res,true,"should return false")
 
       let afterRecieverBalance = await  fnxToken.balanceOf(staker1);
       console.log("after mine balance = " + afterRecieverBalance);
@@ -209,13 +248,13 @@ contract('MinePoolProxy', function (accounts){
 
     })
 
-    it("[0050] get back left mining token,should pass", async()=>{
+    it("[0050] get mine info,should pass", async()=>{
        let res = await proxy.getMineInfo();
        console.log(res);
 
        assert.equal( web3.utils.fromWei(res[0]), web3.utils.fromWei(disSpeed));
        assert.equal(res[1].toNumber(),interval);
-       assert.equal(res[2].toNumber(),startTIme);
+       assert.equal(res[2].toNumber(),new BN(startTIme).add(new BN(fiveMinutes)).toNumber());
        assert.equal(res[3].toNumber(),finishTime);
     })
 
