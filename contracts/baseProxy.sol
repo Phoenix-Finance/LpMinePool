@@ -8,13 +8,18 @@ import "./MinePoolData.sol";
  */
 contract baseProxy is MinePoolData {
     address public implementation;
-    constructor(address implementation_) public {
+    constructor(address implementation_,address _multiSignature)
+        multiSignatureClient(_multiSignature)
+        public
+    {
         // Creator of the contract is admin during initialization
         implementation = implementation_; 
     }
+
     function getImplementation()public view returns(address){
         return implementation;
     }
+
     function setImplementation(address implementation_)public onlyOwner{
         implementation = implementation_; 
         (bool success,) = implementation_.delegatecall(abi.encodeWithSignature("update()"));

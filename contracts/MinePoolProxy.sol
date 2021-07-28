@@ -7,7 +7,10 @@ import "./baseProxy.sol";
  */
 contract MinePoolProxy is baseProxy {
     
-    constructor (address implementation_) baseProxy(implementation_) public{
+    constructor (address implementation_,address _multiSignature)
+        baseProxy(implementation_,_multiSignature)
+        public
+    {
     }
     /**
      * @dev default function for foundation input miner coins.

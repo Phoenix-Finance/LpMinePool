@@ -3,8 +3,10 @@ pragma solidity =0.5.16;
 import "./ReentrancyGuard.sol";
 import "./Ownable.sol";
 import "./Halt.sol";
+import "./Operator.sol";
+import "./multiSignatureClient.sol";
 
-contract MinePoolData is Ownable,Halt,ReentrancyGuard {
+contract MinePoolData is multiSignatureClient,Operator,Halt,ReentrancyGuard {
     
     address public fnx ;
     address payable public lp;

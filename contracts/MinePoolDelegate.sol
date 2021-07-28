@@ -27,6 +27,14 @@ contract MinePool is LPTokenWrapper {
         _;
     }
 
+    constructor(address _multiSignature)
+        multiSignatureClient(_multiSignature)
+        public
+    {
+        
+    }
+
+
     function update() onlyOwner public{
         //for the future use
     }
@@ -66,7 +74,10 @@ contract MinePool is LPTokenWrapper {
      * @dev getting back the left mine token
      * @param reciever the reciever for getting back mine token
      */
-    function getbackLeftMiningToken(address payable reciever)  public onlyOwner {
+    function getbackLeftMiningToken(address payable reciever)  public
+        onlyOperator(0)
+        validCall
+    {
         uint256 bal =  IERC20(fnx).balanceOf(address(this));
         IERC20(fnx).transfer(reciever,bal);
         if(lp==address(0)){
