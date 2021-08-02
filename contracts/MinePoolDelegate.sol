@@ -39,12 +39,12 @@ contract MinePool is LPTokenWrapper {
         //for the future use
     }
 
-    function setPoolMineAddress(address payable _liquidpool,address _fnxaddress) public onlyOwner{
+    function setPoolMineAddress(address payable _liquidpool,address _phxaddress) public onlyOwner{
        // require(_liquidpool != address(0));
-        require(_fnxaddress != address(0));
+        require(_phxaddress != address(0));
         
         lp  = _liquidpool;
-        fnx = _fnxaddress;
+        phx = _phxaddress;
     }
     
     function setMineRate(uint256 _reward,uint256 _duration) public onlyOwner updateReward(address(0)){
@@ -78,16 +78,16 @@ contract MinePool is LPTokenWrapper {
         onlyOperator(0)
         validCall
     {
-        uint256 bal =  IERC20(fnx).balanceOf(address(this));
-        IERC20(fnx).transfer(reciever,bal);
+        uint256 bal =  IERC20(phx).balanceOf(address(this));
+        IERC20(phx).transfer(reciever,bal);
         if(lp==address(0)){
             reciever.transfer(address(this).balance);
         }
     }
 
-    function setFeePara(uint256 fnxFeeRatio,uint256 htFeeAmount,address payable feeReciever) onlyOwner public {
-        if(fnxFeeRatio>0) {
-            _fnxFeeRatio = fnxFeeRatio;
+    function setFeePara(uint256 phxFeeRatio,uint256 htFeeAmount,address payable feeReciever) onlyOwner public {
+        if(phxFeeRatio>0) {
+            _phxFeeRatio = phxFeeRatio;
         }
         if(htFeeAmount >0 ) {
             _htFeeAmount = htFeeAmount;
@@ -98,7 +98,7 @@ contract MinePool is LPTokenWrapper {
     }
 
     function  collectFee(address mineCoin,uint256 amount) internal returns (uint256){
-         if(_fnxFeeRatio==0) {
+         if(_phxFeeRatio==0) {
              return amount;
          }
          require(msg.value>=_htFeeAmount,"need input ht coin value 0.01");
@@ -106,8 +106,8 @@ contract MinePool is LPTokenWrapper {
         _feeReciever.transfer(_htFeeAmount);
 
         if (mineCoin != address(0)){
-            //charge fnx token fee
-            uint256 fee = amount.mul(_fnxFeeRatio).div(1000);
+            //charge phx token fee
+            uint256 fee = amount.mul(_phxFeeRatio).div(1000);
             IERC20 token = IERC20(mineCoin);
             uint256 preBalance = token.balanceOf(address(this));
             //ERC20(this).safeTransfer(token,_feeReciever,fee);
@@ -169,12 +169,12 @@ contract MinePool is LPTokenWrapper {
         uint256 reward = earned(msg.sender);
         if (reward > 0) {
             //get fee for reciever
-            //reward = collectFee(fnx,reward);
+            //reward = collectFee(phx,reward);
             rewards[msg.sender] = 0;
-            uint256 preBalance = IERC20(fnx).balanceOf(address(this));
-            IERC20(fnx).transfer(msg.sender, reward);
-            uint256 afterBalance = IERC20(fnx).balanceOf(address(this));
-            require(preBalance - afterBalance==reward,"fnx award transfer error!");
+            uint256 preBalance = IERC20(phx).balanceOf(address(this));
+            IERC20(phx).transfer(msg.sender, reward);
+            uint256 afterBalance = IERC20(phx).balanceOf(address(this));
+            require(preBalance - afterBalance==reward,"phx award transfer error!");
             emit RewardPaid(msg.sender, reward);
         }
     }
@@ -183,7 +183,7 @@ contract MinePool is LPTokenWrapper {
      * @return Total number of distribution tokens balance.
      */
     function distributionBalance() public view returns (uint256) {
-        return IERC20(fnx).balanceOf(address(this));
+        return IERC20(phx).balanceOf(address(this));
     }    
 
     /**
