@@ -8,7 +8,7 @@ import "./multiSignatureClient.sol";
 
 contract MinePoolData is multiSignatureClient,Operator,Halt,ReentrancyGuard {
     
-    address public fnx ;
+    address public phx ;
     address payable public lp;
 
    // address  public rewardDistribution;
@@ -30,7 +30,7 @@ contract MinePoolData is multiSignatureClient,Operator,Halt,ReentrancyGuard {
     uint256 internal totalsupply;
     mapping(address => uint256) internal balances;
 
-    uint256 public _fnxFeeRatio ;//= 50;//5%
+    uint256 public _phxFeeRatio ;//= 50;//5%
     uint256 public _htFeeAmount ;//= 1e16;
     address payable public _feeReciever;
     
