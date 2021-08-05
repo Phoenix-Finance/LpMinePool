@@ -1,0 +1,50 @@
+lp TX:			https://polygonscan.com/tx/0x98c3e620eaaa979f12cf7697dd022207ac122bb75a0ee3167eb0f6d0e63504f8
+LP:				https://polygonscan.com/address/0x666dd949db4f3807c6e8e360a79473a5f0c7075a#readContract
+
+multisig:	0x2c2627E36Ed553A6E247F1c608C64725568777EC
+cPHX:		0x54a02FD4AeFc77aA97Cd3d30322F3E7a7D875a27
+
+delegate:  			0x048ff7e17f824326de1d920b8bbf1ec91cdb8aa6
+minepool(proxy):	0x862e64d45eb1073bc8c8fef946c3321b48534a6d
+
+
+set parameter
+1.
+setOperator：
+0
+0x729bE9A533eB1C7945D6A9b3E98D34796d07A4e5
+
+2.
+setPoolMineAddress
+lp: 	0x666Dd949Db4f3807C6e8E360A79473a5F0C7075a
+cphx:	0x54a02FD4AeFc77aA97Cd3d30322F3E7a7D875a27
+
+3. 
+setPeriodFinish
+8月9号晚上8点 北京时间 出矿量每天6000
+
+startTime:	1628510400	 //2021.08.09 20:00:00
+endTime:	1786276800   //2026.08.09 20:00:00
+
+amount: 	6000000000000000000000
+duration:	86400
+
+/////////////////////////////////////////////////////////
+minepool
+0x862e64d45eb1073bc8c8fef946c3321b48534a6d
+
+cphx
+0x54a02FD4AeFc77aA97Cd3d30322F3E7a7D875a27
+decimal
+18
+
+lp token
+0x666Dd949Db4f3807C6e8E360A79473a5F0C7075a
+decimal
+18
+
+开始时间
+2021.08.09 20:00:00
+
+出矿速度
+6000/天
