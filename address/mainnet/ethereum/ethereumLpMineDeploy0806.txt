@@ -1,0 +1,55 @@
+owner
+ledger：0x729bE9A533eB1C7945D6A9b3E98D34796d07A4e5
+
+LP:			https://etherscan.io/address/0x9d22c2bb272feed9ec352df38ef0ef1e56a16879#readContract
+			0x9D22C2BB272Feed9ec352Df38Ef0eF1e56A16879
+
+multisig:	0x74A6AD894F276EC5Fd894621A37e733E2276Faa4
+cPHX:		0xBdD50c7B6c871D9aFB278445d5b74fDc4705a234
+
+delegate:  			0xd8d558acb18c9a4f247c147e84b991f52b354bfe	
+minepool(proxy):	0xf0e71caf62cf7f3dba2793cdc2bba1712cea93aa
+
+
+set parameter
+1.
+setOperator：
+0
+0x729bE9A533eB1C7945D6A9b3E98D34796d07A4e5
+
+2.
+setPoolMineAddress
+lp: 	0x9D22C2BB272Feed9ec352Df38Ef0eF1e56A16879
+cphx:	0xBdD50c7B6c871D9aFB278445d5b74fDc4705a234
+
+3. 
+setPeriodFinish
+8月9号晚上8点 北京时间 出矿量每天6000
+
+startTime:	1628510400	 //2021.08.09 20:00:00
+endTime:	1786276800   //2026.08.09 20:00:00
+
+4.
+setMineRate
+amount: 	6000000000000000000000
+duration:	86400
+
+/////////////////////////////////////////////////////////
+minepool
+0xf0e71caf62cf7f3dba2793cdc2bba1712cea93aa
+
+cphx
+0xBdD50c7B6c871D9aFB278445d5b74fDc4705a234
+decimal
+18
+
+lp token
+0x9D22C2BB272Feed9ec352Df38Ef0eF1e56A16879
+decimal
+18
+
+开始时间
+2021.08.09 20:00:00
+
+出矿速度
+6000/天
