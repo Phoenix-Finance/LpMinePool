@@ -1,5 +1,7 @@
 const PoolProxy = artifacts.require('MinePoolProxy');
 const MinePool = artifacts.require('MinePool');
+const MinePoolV2 = artifacts.require('MinePoolV2');
+
 const MockTokenFactory = artifacts.require('TokenFactory');
 const Token = artifacts.require("TokenMock");
 let multiSignature = artifacts.require("multiSignature");
@@ -35,6 +37,7 @@ async function testViolation(message,testFunc){
 contract('MinePoolProxy', function (accounts){
     let minepool;
     let proxy;
+    let realProxy;
     let tokenFactory;
     let lpToken1;
     let lpToken2;
@@ -65,10 +68,10 @@ contract('MinePoolProxy', function (accounts){
         minepool = await MinePool.new(mulSigInst.address);
         console.log("pool address:", minepool.address);
 
-        proxy = await PoolProxy.new(minepool.address,mulSigInst.address);
-        console.log("proxy address:",proxy.address);
+        realProxy = await PoolProxy.new(minepool.address,mulSigInst.address);
+        console.log("proxy address:",realProxy.address);
 
-        proxy = await MinePool.at(minepool.address);
+        proxy = await MinePool.at(realProxy.address);
         await proxy.setOperator(0,accounts[9]);
 
         tokenFactory = await MockTokenFactory.new();
@@ -148,6 +151,41 @@ contract('MinePoolProxy', function (accounts){
       assert.equal(diff>=timeDiff&&diff<=diff*(timeDiff+1),true);
 
 		})
+
+  it("[0020] multisig for update,should pass", async()=>{
+
+    let v1 = await proxy.getVersion();
+    assert.equal(v1,1);
+
+    let implv2 = await MinePoolV2.new(mulSigInst.address);;
+
+    let msgData = realProxy.contract.methods._upgradeTo(implv2.address).encodeABI();
+    let hash = await createApplication(mulSigInst,accounts[9],realProxy.address,0,msgData);
+
+    res = await testViolation("multiSig update delegate: This tx is not aprroved",async function(){
+      await realProxy._upgradeTo(implv2.address,{from:accounts[9]});
+    });
+    assert.equal(res,false,"should return false");
+
+    let index = await mulSigInst.getApplicationCount(hash)
+    index = index.toNumber()-1;
+    console.log(index);
+
+    res = await mulSigInst.signApplication(hash,index,{from:accounts[7]});
+    assert.equal(res.receipt.status,true);
+    res = await mulSigInst.signApplication(hash,index,{from:accounts[8]})
+    assert.equal(res.receipt.status,true);
+
+    res = await testViolation("multiSig getBackPhx: This tx is not aprroved",async function(){
+      await realProxy._upgradeTo(implv2.address,{from:accounts[9]});
+    });
+
+    assert.equal(res,true,"should return false");
+
+    let v2 = await proxy.getVersion();
+    assert.equal(v2,2);
+  })
+
 
   it("[0020]get out mine reward,should pass", async()=>{
     console.log("\n\n");
