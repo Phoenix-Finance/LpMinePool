@@ -39,12 +39,12 @@ contract MinePool is LPTokenWrapper {
         //for the future use
     }
 
-    function setPoolMineAddress(address payable _liquidpool,address _phxaddress) public onlyOwner{
+    function setPoolMineAddress(address payable _liquidToken,address _rewardToken) public onlyOwner{
        // require(_liquidpool != address(0));
-        require(_phxaddress != address(0));
+        require(_rewardToken != address(0));
         
-        lp  = _liquidpool;
-        phx = _phxaddress;
+        lp  = _liquidToken;
+        phx = _rewardToken;
     }
     
     function setMineRate(uint256 _reward,uint256 _duration) public onlyOwner updateReward(address(0)){
@@ -147,9 +147,7 @@ contract MinePool is LPTokenWrapper {
      }
 
     function stake(uint256 amount,bytes memory data) public updateReward(msg.sender) payable notHalted nonReentrant {
-
         require(now < periodFinish,"over finish time");//do not allow to stake after finish
-        
         super.stake(amount);
         emit Staked(msg.sender, amount);
     }
@@ -194,16 +192,7 @@ contract MinePool is LPTokenWrapper {
         return super.balanceOf(addr);
     }
     
-    /**
-     * @dev all stake token.
-     * @return The number of staking tokens
-     */
-
-    function getMineInfo() public view returns (uint256,uint256,uint256,uint256) {
-        return (rewardPerduration,duration,startTime,periodFinish);
-    }
-    
-    function getVersion() public view returns (uint256) {
+    function getVersion() public pure returns (uint256) {
         return 1;
     }
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -229,5 +218,8 @@ contract MinePool is LPTokenWrapper {
         return super.totalSupply();
     }
 
+    function getMineInfo() public view returns (uint256,uint256,uint256,uint256) {
+        return (rewardPerduration,duration,startTime,periodFinish);
+    }
 
 }
