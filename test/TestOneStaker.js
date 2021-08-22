@@ -68,6 +68,7 @@ contract('MinePoolProxy', function (accounts){
         proxy = await PoolProxy.new(minepool.address,mulSigInst.address);
         console.log("proxy address:",proxy.address);
 
+        proxy = await MinePool.at(minepool.address);
         await proxy.setOperator(0,accounts[9]);
 
         tokenFactory = await MockTokenFactory.new();
